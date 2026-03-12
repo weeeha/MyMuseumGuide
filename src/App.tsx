@@ -5,6 +5,7 @@ import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home';
 import Components from './pages/Components';
 import DesignTokens from './pages/DesignTokens';
+import Todo from './pages/Todo';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -40,7 +41,22 @@ setupIonicReact({ mode: 'ios' });
 
 const App: React.FC = () => (
   <IonApp>
-    <DesignTokens />
+    <IonReactRouter>
+      <IonRouterOutlet>
+        <Route exact path="/tokens">
+          <DesignTokens />
+        </Route>
+        <Route exact path="/components">
+          <Components />
+        </Route>
+        <Route exact path="/todo">
+          <Todo />
+        </Route>
+        <Route exact path="/">
+          <Redirect to="/tokens" />
+        </Route>
+      </IonRouterOutlet>
+    </IonReactRouter>
   </IonApp>
 );
 
