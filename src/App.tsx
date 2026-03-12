@@ -40,7 +40,19 @@ setupIonicReact({ mode: 'ios' });
 
 const App: React.FC = () => (
   <IonApp>
-    <DesignTokens />
+    <IonReactRouter>
+      <IonRouterOutlet>
+        <Route exact path="/tokens">
+          <DesignTokens />
+        </Route>
+        <Route exact path="/components">
+          <Components />
+        </Route>
+        <Route exact path="/">
+          <Redirect to="/tokens" />
+        </Route>
+      </IonRouterOutlet>
+    </IonReactRouter>
   </IonApp>
 );
 
