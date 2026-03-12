@@ -1,0 +1,128 @@
+.components-page {
+  display: flex;
+  justify-content: center;
+  gap: 120px;
+  padding: var(--sp-3xl) var(--sp-lg);
+  min-height: 100vh;
+  background: var(--bg-tertiary);
+  overflow: auto;
+}
+
+.component-column {
+  width: 360px;
+  flex-shrink: 0;
+  border-radius: var(--rd-xl);
+  overflow: hidden;
+  height: fit-content;
+  box-shadow: var(--sh-lg);
+}
+
+.component-column .column-inner {
+  padding: var(--sp-xl) var(--sp-base);
+  background: var(--bg-primary);
+  color: var(--tx-primary);
+}
+
+.column-title {
+  font-size: var(--ft-title2);
+  font-weight: 700;
+  margin: 0 0 var(--sp-xl) 0;
+  text-align: center;
+  color: var(--tx-primary);
+}
+
+.component-section {
+  margin-bottom: var(--sp-2xl);
+}
+
+.section-title {
+  font-size: var(--ft-cap1);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0 0 var(--sp-sm) 0;
+  color: var(--tx-tertiary);
+}
+
+.component-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-sm);
+  align-items: center;
+  margin-bottom: var(--sp-sm);
+}
+
+.fab-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-md);
+}
+
+/* Card shadow using tokens */
+.component-column ion-card {
+  --background: var(--bg-secondary);
+  border-radius: var(--rd-md);
+  box-shadow: var(--sh-sm);
+}
+
+/* Input fill variants outside ion-item */
+.component-column ion-input[fill],
+.component-column ion-textarea[fill] {
+  --border-radius: var(--rd-sm);
+}
+
+/* List inset radius */
+.component-column ion-list[inset] {
+  border-radius: var(--rd-md);
+}
+
+/* Searchbar */
+.component-column ion-searchbar {
+  --border-radius: var(--rd-sm);
+}
+
+/* Segment */
+.component-column ion-segment {
+  --background: var(--bg-tertiary);
+  border-radius: var(--rd-sm);
+}
+
+/* Chip radius */
+.component-column ion-chip {
+  --border-radius: var(--rd-full);
+}
+
+/* Badge radius */
+.component-column ion-badge {
+  border-radius: var(--rd-xs);
+}
+
+/* Toolbar */
+.component-column ion-toolbar {
+  --border-radius: var(--rd-sm);
+}
+
+/* FAB button shadow */
+.component-column ion-fab-button {
+  --box-shadow: var(--sh-md);
+}
+
+/* Progress bar spacing */
+.component-column ion-progress-bar {
+  border-radius: var(--rd-xs);
+  --border-radius: var(--rd-xs);
+}
+
+/* Accordion */
+.component-column ion-accordion-group {
+  border-radius: var(--rd-md);
+  overflow: hidden;
+}
+
+/* Datetime */
+.component-column ion-datetime {
+  --background: var(--bg-secondary);
+  border-radius: var(--rd-md);
+  box-shadow: var(--sh-xs);
+}
