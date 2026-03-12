@@ -1,0 +1,239 @@
+.design-tokens-page {
+  min-height: 100vh;
+  background: #FAFAF8;
+  padding: 48px 24px 80px;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  color: #1A1714;
+  overflow: auto;
+}
+
+.dt-container {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.dt-title {
+  font-size: 36px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  letter-spacing: -0.02em;
+}
+
+.dt-subtitle {
+  font-size: 15px;
+  color: #6B6560;
+  margin: 0 0 32px;
+  line-height: 1.5;
+}
+
+/* Filter input */
+.dt-filter-wrap {
+  margin-bottom: 40px;
+}
+
+.dt-filter {
+  width: 100%;
+  padding: 14px 20px;
+  font-size: 15px;
+  border: 1px solid #E5E0DB;
+  border-radius: 12px;
+  background: #FFFFFF;
+  color: #1A1714;
+  outline: none;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+
+.dt-filter:focus {
+  border-color: #D4734A;
+}
+
+.dt-filter::placeholder {
+  color: #A39E99;
+}
+
+/* Section headings */
+.dt-section-heading {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 4px;
+  padding-bottom: 8px;
+  border-bottom: 3px solid #D4734A;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+
+/* Card wrapper */
+.dt-card {
+  background: #FFFFFF;
+  border: 1px solid #F0EDE9;
+  border-radius: 12px;
+  padding: 28px 24px;
+  margin-bottom: 48px;
+}
+
+/* Token group */
+.token-group {
+  margin-bottom: 32px;
+}
+
+.token-group:last-child {
+  margin-bottom: 0;
+}
+
+.token-group-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #D4734A;
+  margin: 0 0 12px;
+}
+
+/* Table rows */
+.token-table-header {
+  display: flex;
+  align-items: center;
+  padding: 0 0 8px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #A39E99;
+  border-bottom: 1px solid #F0EDE9;
+}
+
+.token-table-row {
+  display: flex;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #F0EDE9;
+  font-size: 14px;
+}
+
+.token-table-row:last-child {
+  border-bottom: none;
+}
+
+/* Color row columns */
+.color-row .col-token {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.color-row .col-light {
+  width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 13px;
+}
+
+.color-row .col-dark {
+  width: 180px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 13px;
+}
+
+.color-row .col-usage {
+  flex: 1;
+  color: #6B6560;
+  font-size: 13px;
+}
+
+/* Value row columns */
+.value-row .col-token {
+  width: 160px;
+  flex-shrink: 0;
+}
+
+.value-row .col-value {
+  width: 140px;
+  flex-shrink: 0;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+  font-size: 13px;
+  color: #6B6560;
+}
+
+.value-row .col-preview {
+  width: 140px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.value-row .col-usage {
+  flex: 1;
+  color: #6B6560;
+  font-size: 13px;
+}
+
+/* Token name styling */
+.token-name {
+  font-weight: 600;
+  color: #1A1714;
+}
+
+/* Swatch */
+.swatch {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* Spacing bar preview */
+.spacing-bar {
+  display: inline-block;
+  height: 10px;
+  min-width: 2px;
+  max-width: 120px;
+  background: #D4734A;
+  border-radius: 3px;
+  opacity: 0.7;
+}
+
+/* Radius box preview */
+.radius-box {
+  display: inline-block;
+  width: 40px;
+  height: 28px;
+  background: #FDF0EB;
+  border: 2px solid #D4734A;
+}
+
+/* Shadow box preview */
+.shadow-box {
+  display: inline-block;
+  width: 48px;
+  height: 28px;
+  background: #FFFFFF;
+  border-radius: 6px;
+}
+
+/* Font preview */
+.font-preview {
+  font-weight: 600;
+  color: #1A1714;
+  line-height: 1;
+}
+
+/* Responsive */
+@media (max-width: 820px) {
+  .color-row .col-usage,
+  .value-row .col-usage {
+    display: none;
+  }
+
+  .color-row .col-light,
+  .color-row .col-dark {
+    width: 140px;
+  }
+}
