@@ -1,11 +1,13 @@
 import './index.css';
-import { Redirect, Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
+import { useEffect } from 'react';
+import { Redirect, Route, Switch } from 'react-router-dom';
+import { IonApp, IonRouterOutlet, IonSpinner, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Home from './pages/Home';
+import { AppShell } from './app/AppShell';
+import { OnboardingFlow } from './features/onboarding/OnboardingFlow';
+import { useUserProfile } from './state/useUserProfile';
 import Components from './pages/Components';
 import DesignTokens from './pages/DesignTokens';
-import Todo from './pages/Todo';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -23,41 +25,56 @@ import '@ionic/react/css/text-transformation.css';
 import '@ionic/react/css/flex-utils.css';
 import '@ionic/react/css/display.css';
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
-
-/* import '@ionic/react/css/palettes/dark.always.css'; */
 import '@ionic/react/css/palettes/dark.class.css';
-/* import '@ionic/react/css/palettes/dark.system.css'; */
 
-/* Theme variables */
 import './theme/variables.css';
 
 setupIonicReact({ mode: 'ios' });
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route exact path="/tokens">
-          <DesignTokens />
-        </Route>
-        <Route exact path="/components">
-          <Components />
-        </Route>
-        <Route exact path="/todo">
-          <Todo />
-        </Route>
-        <Route exact path="/">
-          <Redirect to="/tokens" />
-        </Route>
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+const App: React.FC = () => {
+  const hydrate = useUserProfile((s) => s.hydrate);
+  const hydrated = useUserProfile((s) => s.hydrated);
+  const profile = useUserProfile((s) => s.profile);
+
+  useEffect(() => {
+    hydrate();
+  }, [hydrate]);
+
+  if (!hydrated) {
+    return (
+      <IonApp>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100vh',
+          }}
+        >
+          <IonSpinner name="crescent" />
+        </div>
+      </IonApp>
+    );
+  }
+
+  return (
+    <IonApp>
+      <IonReactRouter>
+        <IonRouterOutlet>
+          <Switch>
+            <Route exact path="/dev/tokens" component={DesignTokens} />
+            <Route exact path="/dev/components" component={Components} />
+            <Route exact path="/onboarding">
+              {profile ? <Redirect to="/tour" /> : <OnboardingFlow />}
+            </Route>
+            <Route path="/">
+              {profile ? <AppShell /> : <Redirect to="/onboarding" />}
+            </Route>
+          </Switch>
+        </IonRouterOutlet>
+      </IonReactRouter>
+    </IonApp>
+  );
+};
 
 export default App;

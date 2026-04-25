@@ -1,7 +1,13 @@
-# Visitor — AI Museum Tour Guide
+# MuseumLover — AI Museum Tour Guide
 
 A mobile app that turns any museum visit into a personalized, AI-narrated tour
 in your language and at your level of curiosity.
+
+Stack: **Ionic 8 + Capacitor 8 + React 19 + Vite 5 + TypeScript + Tailwind 4**
+shipping to **iOS App Store** first, Android later. Backend on **Cloudflare
+Workers + Hono** with **Supabase** for Postgres + Storage. **Anthropic Claude
+Sonnet 4.6** (vision + narrative) and **ElevenLabs Turbo v2.5** (TTS) behind a
+server proxy that caches identical lookups.
 
 ## Pitch
 
@@ -107,27 +113,50 @@ src/
 Existing `pages/DesignTokens.tsx`, `pages/Components.tsx`, `pages/Todo.tsx` are
 kept as the design-system reference and live at `/dev/*` routes for now.
 
-## Status
+## Roadmap (6 weeks to TestFlight)
 
-- [x] Repo scaffold (Ionic + Capacitor + React + Vite + TS + Tailwind)
-- [x] Design tokens + light/dark theme
-- [x] App shell with tab navigation (Tour, Capture, Journey, Profile)
-- [x] Onboarding flow (mock)
-- [x] Tour page with museum picker + floor-plan upload (mock)
-- [x] Capture → artifact detail (mock AI)
-- [x] Journey log (in-memory + localStorage)
-- [x] Profile with credits & subscription stub
-- [ ] Real Capacitor camera integration
-- [ ] Backend service (artifact cache + AI proxy + billing)
-- [ ] Streaming responses
-- [ ] Photo cleanup pipeline
-- [ ] iOS App Store submission
+Decisions baked in: Mac available, Apple Developer enrollment in progress;
+launch museum is **Montreal Museum of Fine Arts** with a curated artifact
+pack; pricing is **$6.99/mo with credits + $2.99 top-up packs**; auth is
+**Sign in with Apple only**; backend is **Cloudflare Workers + Hono + Supabase
+(Postgres + Storage)**; AI is **Anthropic Claude Sonnet 4.6 vision** for
+identification + narrative and **ElevenLabs Turbo v2.5** for TTS.
 
-## Open decisions
+| Phase | What ships | Accept when |
+| ----- | ---------- | ----------- |
+| **0 — Bootstrap** (this commit) | Renamed app identity, deps added, tab shell, design system intact, starter cruft removed. | `npm run dev` serves the onboarding flow; design system at `/dev/tokens` and `/dev/components` still works. |
+| **1 — Shell + Onboarding + Profile** (this commit) | Onboarding (language → level → interests), Zustand + Capacitor Preferences persistence, Profile page reading the store. | Kill app, reopen, profile survives. All 10 languages pickable. Onboarding only on first launch. |
+| **2 — Museum Picker + Floor-Plan Capture** | 6-museum hard-coded list, Capacitor Camera, photo upload to mock backend, `Museum` + `FloorPlan` in session. | Pick MMFA, scan a printed plan, see detected topics in session. |
+| **3 — Capture loop with real AI** | Cloudflare Workers backend live; Claude vision identification; ElevenLabs streamed TTS; real Journey persistence (Filesystem). | Inside MMFA, photograph a painting, get narrative in <6s, audio in <10s, entry saved. |
+| **4 — Auth + Paywall** | Sign in with Apple, RevenueCat ($6.99/mo + $2.99 top-up), free-tier gate (5 captures/mo), follow-ups, annotated export. | Sandbox IAP completes; SIWA works; free user paywalled at 5 captures. |
+| **5 — Hardening + TestFlight** | Privacy manifest, Info.plist strings, nutrition labels, app icon + splash, Sentry, analytics. | First TestFlight build runs on a real iPhone for 30 min crash-free over cellular. |
+| **6 — App Store** | Screenshots, metadata, submission. | Approved. |
 
-- **First museum partner**: self-curate Montreal Museum of Fine Arts as the
-  "golden path" before generic mode.
-- **Pricing**: credit-based vs. monthly. Suggest monthly with included credits
-  + top-ups for paid add-ons.
-- **Cold-start identification**: do we ask the user to also photograph the
-  caption/label? Likely yes — drives accuracy from ~70% to ~95%.
+### Status today
+
+- [x] Phase 0 — Bootstrap
+- [x] Phase 1 — Onboarding + Profile (in progress this commit)
+- [ ] Phase 2 — Museum picker + floor-plan capture
+- [ ] Phase 3 — Capture loop with real AI
+- [ ] Phase 4 — Auth + paywall
+- [ ] Phase 5 — Hardening + TestFlight
+- [ ] Phase 6 — App Store submission
+
+### Pre-launch checklist (Apple)
+
+- [ ] Apple Developer Program enrolled (1–3 days; start now).
+- [ ] Bundle ID `com.museumlover.app` reserved in App Store Connect.
+- [ ] `npx cap add ios` once Apple Developer account is active.
+- [ ] `Info.plist` usage strings: camera, photo-library-add.
+- [ ] `PrivacyInfo.xcprivacy` merged with Capacitor's.
+- [ ] App Privacy Nutrition Labels filled in.
+- [ ] Sign in with Apple capability enabled (only auth method → no SIWA-required-as-option trap).
+- [ ] RevenueCat configured (`museumlover.monthly`, `museumlover.credits.topup.20`).
+- [ ] Free tier = 5 captures/month, English + device language, no TTS — keeps Apple's "too much paywalled" reviewers happy.
+
+### Open questions for later
+
+- Voices: one default per language vs. let user pick.
+- Analytics: PostHog vs. plain fetch-to-Worker event log.
+- Supabase region: `us-east-1` vs. `eu-central-1` (depends on first audience).
+- Journey sharing: strictly personal in v1 (recommended) vs. shareable later.
