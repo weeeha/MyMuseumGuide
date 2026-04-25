@@ -5,6 +5,7 @@ import { IonApp, IonRouterOutlet, IonSpinner, setupIonicReact } from '@ionic/rea
 import { IonReactRouter } from '@ionic/react-router';
 import { AppShell } from './app/AppShell';
 import { OnboardingFlow } from './features/onboarding/OnboardingFlow';
+import { useSession } from './state/useSession';
 import { useUserProfile } from './state/useUserProfile';
 import Components from './pages/Components';
 import DesignTokens from './pages/DesignTokens';
@@ -35,10 +36,12 @@ const App: React.FC = () => {
   const hydrate = useUserProfile((s) => s.hydrate);
   const hydrated = useUserProfile((s) => s.hydrated);
   const profile = useUserProfile((s) => s.profile);
+  const hydrateSession = useSession((s) => s.hydrate);
 
   useEffect(() => {
     hydrate();
-  }, [hydrate]);
+    hydrateSession();
+  }, [hydrate, hydrateSession]);
 
   if (!hydrated) {
     return (
