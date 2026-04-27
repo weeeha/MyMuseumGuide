@@ -23,6 +23,7 @@ import { useState } from 'react';
 import type { ArtifactInfo, JourneyEntry } from '../../domain/types';
 import { aiClient } from '../../services/ai/client';
 import { takePhoto } from '../../services/camera/camera';
+import { journeyPhotoPath, savePhoto } from '../../services/storage/photos';
 import { useJourney } from '../../state/useJourney';
 import { useSession } from '../../state/useSession';
 import { useUserProfile } from '../../state/useUserProfile';
@@ -48,6 +49,9 @@ export function CapturePage() {
       const photo = await takePhoto();
       if (!photo) return;
       setPhase({ kind: 'identifying', photoDataUrl: photo.dataUrl });
+      const entryId = nanoid();
+      const photoPath = journeyPhotoPath(entryId);
+      await savePhoto(photoPath, photo.dataUrl);
       const artifact = await aiClient.identifyArtifact({
         photoDataUrl: photo.dataUrl,
         museum: museum ?? undefined,
@@ -56,11 +60,11 @@ export function CapturePage() {
         interests: profile.interests,
       });
       const entry: JourneyEntry = {
-        id: nanoid(),
+        id: entryId,
         museumId: museum?.id ?? 'generic',
         museumName: museum?.name ?? 'Generic',
         capturedAt: new Date().toISOString(),
-        photoDataUrl: photo.dataUrl,
+        photoPath,
         artifact,
       };
       await addToJourney(entry);
@@ -176,7 +180,7 @@ export function CapturePage() {
         {phase.kind === 'result' && (
           <>
             <ArtifactCard
-              photoDataUrl={phase.photoDataUrl}
+              photoSrc={phase.photoDataUrl}
               artifact={phase.artifact}
               museumName={museum?.name}
               capturedAt={new Date().toISOString()}

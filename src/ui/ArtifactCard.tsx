@@ -16,7 +16,7 @@ import {
 import type { ArtifactInfo } from '../domain/types';
 
 interface Props {
-  photoDataUrl: string;
+  photoSrc: string;
   artifact: ArtifactInfo;
   capturedAt?: string;
   museumName?: string;
@@ -24,7 +24,7 @@ interface Props {
 }
 
 export function ArtifactCard({
-  photoDataUrl,
+  photoSrc,
   artifact,
   capturedAt,
   museumName,
@@ -39,7 +39,7 @@ export function ArtifactCard({
   return (
     <article style={{ display: 'flex', flexDirection: 'column' }}>
       <img
-        src={photoDataUrl}
+        src={photoSrc}
         alt={artifact.title}
         style={{
           width: '100%',

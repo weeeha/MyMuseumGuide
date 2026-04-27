@@ -29,3 +29,10 @@ yarn-error.log*
 
 # Optional eslint cache
 .eslintcache
+
+# Personal museum reference photos — never commit (7.6 GB+)
+/Photos
+*.heic
+*.HEIC
+*.mov
+*.MOV

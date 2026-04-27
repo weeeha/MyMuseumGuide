@@ -16,6 +16,8 @@ import { useState } from 'react';
 import type { FloorPlan, Museum } from '../../domain/types';
 import { takePhoto } from '../../services/camera/camera';
 import { aiClient } from '../../services/ai/client';
+import { floorPlanPhotoPath, savePhoto } from '../../services/storage/photos';
+import { useResolvedPhotoSrc } from '../../ui/useResolvedPhotoSrc';
 
 interface Props {
   museum: Museum;
@@ -26,6 +28,7 @@ interface Props {
 export function FloorPlanCapture({ museum, floorPlan, onCapture }: Props) {
   const [presentToast] = useIonToast();
   const [busy, setBusy] = useState(false);
+  const floorPlanSrc = useResolvedPhotoSrc(floorPlan?.imagePath ?? null);
 
   const capture = async () => {
     setBusy(true);
@@ -35,11 +38,14 @@ export function FloorPlanCapture({ museum, floorPlan, onCapture }: Props) {
         setBusy(false);
         return;
       }
+      const planId = nanoid();
+      const imagePath = floorPlanPhotoPath(planId);
+      await savePhoto(imagePath, photo.dataUrl);
       const { topics } = await aiClient.parseFloorPlan(photo.dataUrl, museum);
       const plan: FloorPlan = {
-        id: nanoid(),
+        id: planId,
         museumId: museum.id,
-        imageDataUrl: photo.dataUrl,
+        imagePath,
         detectedTopics: topics,
         capturedAt: new Date().toISOString(),
       };
@@ -119,16 +125,27 @@ export function FloorPlanCapture({ museum, floorPlan, onCapture }: Props) {
 
   return (
     <IonCard>
-      <img
-        src={floorPlan.imageDataUrl}
-        alt="Floor plan"
-        style={{
-          width: '100%',
-          maxHeight: 220,
-          objectFit: 'cover',
-          display: 'block',
-        }}
-      />
+      {floorPlanSrc ? (
+        <img
+          src={floorPlanSrc}
+          alt="Floor plan"
+          style={{
+            width: '100%',
+            maxHeight: 220,
+            objectFit: 'cover',
+            display: 'block',
+          }}
+        />
+      ) : (
+        <div
+          style={{
+            width: '100%',
+            height: 220,
+            background: 'var(--sf-secondary)',
+          }}
+          aria-hidden
+        />
+      )}
       <IonCardContent>
         <IonText>
           <p style={{ fontWeight: 600, margin: 0 }}>

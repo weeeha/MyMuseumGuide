@@ -12,6 +12,7 @@ import {
   IonList,
   IonModal,
   IonPage,
+  IonSpinner,
   IonTitle,
   IonToolbar,
   useIonAlert,
@@ -22,12 +23,30 @@ import type { JourneyEntry } from '../../domain/types';
 import { useJourney } from '../../state/useJourney';
 import { ArtifactCard } from '../../ui/ArtifactCard';
 import { EmptyState } from '../../ui/EmptyState';
+import { useResolvedPhotoSrc } from '../../ui/useResolvedPhotoSrc';
+
+const THUMB_STYLE: React.CSSProperties = {
+  width: 56,
+  height: 56,
+  borderRadius: 'var(--rd-sm)',
+  objectFit: 'cover',
+  background: 'var(--sf-secondary)',
+};
+
+function JourneyThumbnail({ path, alt }: { path: string; alt: string }) {
+  const src = useResolvedPhotoSrc(path);
+  if (!src) {
+    return <div slot="start" style={THUMB_STYLE} aria-hidden />;
+  }
+  return <img slot="start" src={src} alt={alt} style={THUMB_STYLE} />;
+}
 
 export function JourneyPage() {
   const entries = useJourney((s) => s.entries);
   const removeEntry = useJourney((s) => s.remove);
   const [active, setActive] = useState<JourneyEntry | null>(null);
   const [presentAlert] = useIonAlert();
+  const activePhotoSrc = useResolvedPhotoSrc(active?.photoPath ?? null);
 
   const confirmRemove = (entry: JourneyEntry) => {
     presentAlert({
@@ -72,17 +91,9 @@ export function JourneyPage() {
             {entries.map((entry) => (
               <IonItemSliding key={entry.id}>
                 <IonItem button detail onClick={() => setActive(entry)}>
-                  <img
-                    slot="start"
-                    src={entry.photoDataUrl}
+                  <JourneyThumbnail
+                    path={entry.photoPath}
                     alt={entry.artifact.title}
-                    style={{
-                      width: 56,
-                      height: 56,
-                      borderRadius: 'var(--rd-sm)',
-                      objectFit: 'cover',
-                      background: 'var(--sf-secondary)',
-                    }}
                   />
                   <IonLabel>
                     <h2 style={{ fontWeight: 600 }}>{entry.artifact.title}</h2>
@@ -116,14 +127,25 @@ export function JourneyPage() {
             </IonToolbar>
           </IonHeader>
           <IonContent>
-            {active && (
+            {active && activePhotoSrc ? (
               <ArtifactCard
-                photoDataUrl={active.photoDataUrl}
+                photoSrc={activePhotoSrc}
                 artifact={active.artifact}
                 museumName={active.museumName}
                 capturedAt={active.capturedAt}
               />
-            )}
+            ) : active ? (
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 'var(--sp-xl)',
+                }}
+              >
+                <IonSpinner name="crescent" />
+              </div>
+            ) : null}
           </IonContent>
         </IonModal>
       </IonContent>
