@@ -69,7 +69,7 @@ export interface Museum {
 export interface FloorPlan {
   id: string;
   museumId: string;
-  imageDataUrl: string;
+  imagePath: string;
   detectedTopics?: string[];
   capturedAt: string;
 }
@@ -98,7 +98,7 @@ export interface JourneyEntry {
   museumId: string;
   museumName: string;
   capturedAt: string;
-  photoDataUrl: string;
+  photoPath: string;
   artifact: ArtifactInfo;
   audioUrl?: string;
   notes?: string;

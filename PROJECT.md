@@ -127,7 +127,9 @@ identification + narrative and **ElevenLabs Turbo v2.5** for TTS.
 | **0 — Bootstrap** (this commit) | Renamed app identity, deps added, tab shell, design system intact, starter cruft removed. | `npm run dev` serves the onboarding flow; design system at `/dev/tokens` and `/dev/components` still works. |
 | **1 — Shell + Onboarding + Profile** (this commit) | Onboarding (language → level → interests), Zustand + Capacitor Preferences persistence, Profile page reading the store. | Kill app, reopen, profile survives. All 10 languages pickable. Onboarding only on first launch. |
 | **2 — Museum Picker + Floor-Plan Capture** | 6-museum hard-coded list, Capacitor Camera, photo upload to mock backend, `Museum` + `FloorPlan` in session. | Pick MMFA, scan a printed plan, see detected topics in session. |
-| **3 — Capture loop with real AI** | Cloudflare Workers backend live; Claude vision identification; ElevenLabs streamed TTS; real Journey persistence (Filesystem). | Inside MMFA, photograph a painting, get narrative in <6s, audio in <10s, entry saved. |
+| **3a — Capture loop scaffold** | Capture → ArtifactCard → Journey loop end-to-end against the mock AI client; reusable `ArtifactCard`; swipe-to-delete + `Reset everything`. | Capture a photo (web file picker or device camera), see a mock narrative, find it in Journey. |
+| **3a.5 — Filesystem-backed Journey photos** | Photos written to `Filesystem.Directory.Data` keyed by entry id; Journey index in Preferences holds only paths; legacy entries auto-migrate on hydrate. | Capture, hard-reload, thumbnail still loads; delete an entry, file is removed; `Reset everything` empties the photos dir. |
+| **3b — Capture loop with real AI** | Backend live; Claude vision identification; ElevenLabs streamed TTS. | Inside MMFA, photograph a painting, get narrative in <6s, audio in <10s, entry saved. |
 | **4 — Auth + Paywall** | Sign in with Apple, RevenueCat ($6.99/mo + $2.99 top-up), free-tier gate (5 captures/mo), follow-ups, annotated export. | Sandbox IAP completes; SIWA works; free user paywalled at 5 captures. |
 | **5 — Hardening + TestFlight** | Privacy manifest, Info.plist strings, nutrition labels, app icon + splash, Sentry, analytics. | First TestFlight build runs on a real iPhone for 30 min crash-free over cellular. |
 | **6 — App Store** | Screenshots, metadata, submission. | Approved. |
@@ -135,12 +137,16 @@ identification + narrative and **ElevenLabs Turbo v2.5** for TTS.
 ### Status today
 
 - [x] Phase 0 — Bootstrap
-- [x] Phase 1 — Onboarding + Profile (in progress this commit)
-- [ ] Phase 2 — Museum picker + floor-plan capture
-- [ ] Phase 3 — Capture loop with real AI
+- [x] Phase 1 — Onboarding + Profile
+- [x] Phase 2 — Museum picker + floor-plan capture
+- [x] Phase 3a — Capture loop scaffold (mock AI)
+- [x] Phase 3a.5 — Filesystem-backed Journey photos
+- [ ] Phase 3b — Capture loop with real AI
 - [ ] Phase 4 — Auth + paywall
 - [ ] Phase 5 — Hardening + TestFlight
 - [ ] Phase 6 — App Store submission
+
+> Backend stack: tentatively pivoting from Cloudflare Workers + Hono to **Vercel Functions** (this repo is already Vercel-linked via `vercel.json`). Decision finalized when Phase 3b is planned.
 
 ### Pre-launch checklist (Apple)
 
