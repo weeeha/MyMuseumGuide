@@ -1,0 +1,7 @@
+{
+  "name": "MuseumLover",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
