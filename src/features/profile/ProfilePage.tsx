@@ -18,6 +18,7 @@ import {
   IonText,
   IonTitle,
   IonToolbar,
+  useIonAlert,
 } from '@ionic/react';
 import {
   checkmarkCircle,
@@ -34,6 +35,8 @@ import {
   type Language,
   type Level,
 } from '../../domain/types';
+import { useJourney } from '../../state/useJourney';
+import { useSession } from '../../state/useSession';
 import { useUserProfile } from '../../state/useUserProfile';
 
 export function ProfilePage() {
@@ -42,6 +45,27 @@ export function ProfilePage() {
   const setLevel = useUserProfile((s) => s.setLevel);
   const setInterests = useUserProfile((s) => s.setInterests);
   const reset = useUserProfile((s) => s.reset);
+  const clearSession = useSession((s) => s.clear);
+  const clearJourney = useJourney((s) => s.clear);
+  const [presentAlert] = useIonAlert();
+
+  const confirmReset = () => {
+    presentAlert({
+      header: 'Reset everything?',
+      message:
+        'Wipes your profile, current museum session, and full Journey. You will be returned to onboarding.',
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Reset',
+          role: 'destructive',
+          handler: async () => {
+            await Promise.all([clearJourney(), clearSession(), reset()]);
+          },
+        },
+      ],
+    });
+  };
 
   if (!profile) return null;
 
@@ -188,9 +212,9 @@ export function ProfilePage() {
         </IonList>
 
         <IonList inset>
-          <IonItem button detail={false} onClick={reset}>
+          <IonItem button detail={false} onClick={confirmReset}>
             <IonIcon slot="start" icon={refreshOutline} color="danger" />
-            <IonLabel color="danger">Reset profile (dev)</IonLabel>
+            <IonLabel color="danger">Reset everything</IonLabel>
           </IonItem>
         </IonList>
       </IonContent>

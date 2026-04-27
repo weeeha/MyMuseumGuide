@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import type { Interest, Language, Level, UserProfile } from '../domain/types';
-import { getJSON, KEYS, setJSON } from '../services/storage/preferences';
+import { getJSON, KEYS, remove, setJSON } from '../services/storage/preferences';
 
 interface UserProfileState {
   profile: UserProfile | null;
@@ -42,7 +42,7 @@ export const useUserProfile = create<UserProfileState>((set, get) => ({
   setLevel: async (level) => get().patch({ level }),
   setInterests: async (interests) => get().patch({ interests }),
   reset: async () => {
-    await setJSON(KEYS.profile, DEFAULT_PROFILE);
+    await remove(KEYS.profile);
     set({ profile: null });
   },
 }));

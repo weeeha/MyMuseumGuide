@@ -5,10 +5,9 @@ import { IonApp, IonRouterOutlet, IonSpinner, setupIonicReact } from '@ionic/rea
 import { IonReactRouter } from '@ionic/react-router';
 import { AppShell } from './app/AppShell';
 import { OnboardingFlow } from './features/onboarding/OnboardingFlow';
+import { useJourney } from './state/useJourney';
 import { useSession } from './state/useSession';
 import { useUserProfile } from './state/useUserProfile';
-import Components from './pages/Components';
-import DesignTokens from './pages/DesignTokens';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -37,11 +36,13 @@ const App: React.FC = () => {
   const hydrated = useUserProfile((s) => s.hydrated);
   const profile = useUserProfile((s) => s.profile);
   const hydrateSession = useSession((s) => s.hydrate);
+  const hydrateJourney = useJourney((s) => s.hydrate);
 
   useEffect(() => {
     hydrate();
     hydrateSession();
-  }, [hydrate, hydrateSession]);
+    hydrateJourney();
+  }, [hydrate, hydrateSession, hydrateJourney]);
 
   if (!hydrated) {
     return (
@@ -65,8 +66,6 @@ const App: React.FC = () => {
       <IonReactRouter>
         <IonRouterOutlet>
           <Switch>
-            <Route exact path="/dev/tokens" component={DesignTokens} />
-            <Route exact path="/dev/components" component={Components} />
             <Route exact path="/onboarding">
               {profile ? <Redirect to="/tour" /> : <OnboardingFlow />}
             </Route>
