@@ -16,10 +16,13 @@ import {
   cameraOutline,
   checkmarkCircle,
   imageOutline,
+  pauseOutline,
+  playOutline,
   refreshOutline,
 } from 'ionicons/icons';
 import { nanoid } from 'nanoid';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { narrationPlayer, type PlayerState } from '../../services/audio/player';
 import type { ArtifactInfo, JourneyEntry } from '../../domain/types';
 import { aiClient } from '../../services/ai/client';
 import { ttsUrlFor } from '../../services/ai/identify';
@@ -55,9 +58,13 @@ export function CapturePage() {
   const router = useIonRouter();
   const [presentToast] = useIonToast();
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
+  const [playerState, setPlayerState] = useState<PlayerState>('idle');
   // The reducer state lives in a ref so SSE callbacks (which fire faster
   // than React renders) never read stale phase from a closure.
   const streamRef = useRef<StreamingPhase | null>(null);
+
+  useEffect(() => narrationPlayer.subscribe(setPlayerState), []);
+  useEffect(() => () => narrationPlayer.stop(), []);
 
   const startCapture = async () => {
     if (!profile || phase.kind !== 'idle') return;
@@ -281,6 +288,37 @@ export function CapturePage() {
             <div
               style={{ padding: 'var(--sp-base)', paddingBottom: 'var(--sp-2xl)' }}
             >
+              {phase.artifact.narrativeId && (
+                <IonButton
+                  expand="block"
+                  size="large"
+                  onClick={() => {
+                    if (playerState === 'playing' || playerState === 'paused') {
+                      narrationPlayer.toggle();
+                    } else {
+                      void narrationPlayer.play(
+                        ttsUrlFor(phase.artifact.narrativeId!),
+                        {
+                          title: phase.artifact.title,
+                          artist: phase.artifact.artist,
+                          museumName: museum?.name,
+                        },
+                      );
+                    }
+                  }}
+                  style={{ marginBottom: 'var(--sp-sm)' }}
+                >
+                  <IonIcon
+                    slot="start"
+                    icon={playerState === 'playing' ? pauseOutline : playOutline}
+                  />
+                  {playerState === 'playing'
+                    ? 'Pause'
+                    : playerState === 'loading'
+                      ? 'Loading…'
+                      : 'Listen'}
+                </IonButton>
+              )}
               <IonButton expand="block" onClick={reset}>
                 <IonIcon slot="start" icon={refreshOutline} />
                 Capture another
