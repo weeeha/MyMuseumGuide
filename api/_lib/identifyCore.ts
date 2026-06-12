@@ -100,11 +100,9 @@ export function createIdentifyHandler(deps: IdentifyDeps) {
           send('extras', { tags: result.tags, followUps: result.followUps });
 
           const id = deps.newId();
-          send('done', { narrativeId: id, cached: false });
-          // Cache write is post-delivery bookkeeping: the user already has
-          // the story. A lost write just means one regeneration later.
-          void deps.repo
-            .insert({
+          let narrativeId = id;
+          try {
+            await deps.repo.insert({
               id,
               museumId,
               artifactKey: key,
@@ -119,10 +117,25 @@ export function createIdentifyHandler(deps: IdentifyDeps) {
               story: result.story,
               tags: result.tags,
               followUps: result.followUps,
-            })
-            .catch((err) => {
-              console.error('narratives insert failed (non-fatal)', err);
             });
+            // A concurrent identical generation may have won the unique
+            // constraint (insert swallows 23505) — re-read so the id we
+            // hand out is the row that actually exists. /api/tts and R2
+            // conversation both dereference it.
+            const canonical = await deps.repo.findByBucket(
+              museumId,
+              key,
+              body.language,
+              body.level,
+            );
+            if (canonical) narrativeId = canonical.id;
+          } catch (err) {
+            // The story is already delivered — never convert a persistence
+            // failure into a user-facing error. Worst case this id dangles
+            // and Listen regenerates nothing; log and move on.
+            console.error('narrative persist failed (non-fatal)', err);
+          }
+          send('done', { narrativeId, cached: false });
         } catch (err) {
           send('error', {
             message: err instanceof Error ? err.message : 'Identification failed',

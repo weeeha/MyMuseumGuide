@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createIdentifyHandler, type IdentifyDeps } from './identifyCore';
 import type { NarrativeRecord } from './narrativesRepo';
 
@@ -123,6 +123,7 @@ describe('createIdentifyHandler', () => {
   });
 
   it('still sends done when the cache insert fails after streaming', async () => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => undefined);
     const handler = createIdentifyHandler(
       makeDeps({
         repo: {
@@ -139,6 +140,7 @@ describe('createIdentifyHandler', () => {
     expect(text).toContain('event: done');
     expect(text).toContain('"cached":false');
     expect(text).not.toContain('event: error');
+    spy.mockRestore();
   });
 
   it('rejects oversized photos with 400', async () => {
@@ -159,5 +161,24 @@ describe('createIdentifyHandler', () => {
     const text = await (await handler(makeRequest())).text();
     expect(text).toContain('event: error');
     expect(text).toContain('vision unavailable');
+  });
+
+  it('emits the canonical id when a concurrent insert won the bucket', async () => {
+    let lookups = 0;
+    const handler = createIdentifyHandler(
+      makeDeps({
+        repo: {
+          findByBucket: async () => {
+            lookups += 1;
+            return lookups === 1 ? null : CACHED; // miss pre-check, canonical re-read finds the winner
+          },
+          findById: async () => null,
+          insert: async () => undefined, // 23505 swallowed inside the real repo
+        },
+      }),
+    );
+    const text = await (await handler(makeRequest())).text();
+    expect(text).toContain('"narrativeId":"cached-id"');
+    expect(text).toContain('"cached":false');
   });
 });

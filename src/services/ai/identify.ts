@@ -51,7 +51,14 @@ export async function identifyArtifactStream(
       }),
     });
     if (!res.ok || !res.body) {
-      events.onError(`Identify failed (${res.status})`);
+      let message = `Identify failed (${res.status})`;
+      try {
+        const body = (await res.json()) as { error?: string };
+        if (body?.error) message = body.error;
+      } catch {
+        // Non-JSON failure body — keep the status-code message.
+      }
+      events.onError(message);
       return;
     }
     await readSse(res.body, (event, data) => {

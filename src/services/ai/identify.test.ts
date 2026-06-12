@@ -78,6 +78,29 @@ describe('identifyArtifactStream', () => {
     expect(errors).toHaveLength(1);
     expect(errors[0]).toContain('500');
   });
+
+  it('surfaces the server-provided error body on 400', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(
+        async () =>
+          new Response(JSON.stringify({ error: 'Photo is too large — please retake or pick a smaller image' }), {
+            status: 400,
+            headers: { 'Content-Type': 'application/json' },
+          }),
+      ),
+    );
+    const errors: string[] = [];
+    await identifyArtifactStream(REQ, {
+      onMeta: () => undefined,
+      onSummary: () => undefined,
+      onDelta: () => undefined,
+      onExtras: () => undefined,
+      onDone: () => undefined,
+      onError: (m) => errors.push(m),
+    });
+    expect(errors).toEqual(['Photo is too large — please retake or pick a smaller image']);
+  });
 });
 
 describe('url helpers', () => {
