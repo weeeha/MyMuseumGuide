@@ -28,6 +28,7 @@ function loadImage(dataUrl: string): Promise<HTMLImageElement> {
  * Downscale a data-URL photo so its long edge is ≤ maxEdge. Returns the
  * original data URL when it is already small enough or when canvas is
  * unavailable (we never block a capture on resizing).
+ * Output is always re-encoded as JPEG — the backend identify path expects JPEG and transparency is irrelevant for photos of artworks.
  */
 export async function downscaleDataUrl(
   dataUrl: string,
