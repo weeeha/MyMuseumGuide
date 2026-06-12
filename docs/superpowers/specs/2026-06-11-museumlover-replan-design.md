@@ -129,6 +129,12 @@ Validated choices for the seams between moments:
   signal" entries; the dashboard shows "2 stories on their way"; arrivals
   chime softly and never auto-play over an ongoing narration or
   conversation.
+- **Navigation — four flat tabs.** Home · Capture · Journey · You (today's
+  shell with renames: Tour → Home, Profile → You). Home is contextual —
+  museum start screen outside a visit, the visit dashboard during one. The
+  Capture tab opens straight into the viewfinder; the artifact card opens
+  as a sheet over the current tab; the route lives inside Home rather than
+  being its own destination.
 
 ## 5. Architecture
 
