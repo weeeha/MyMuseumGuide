@@ -4,6 +4,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, IonSpinner, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { AppShell } from './app/AppShell';
+import { MuseumThemeController } from './app/MuseumThemeController';
 import { OnboardingFlow } from './features/onboarding/OnboardingFlow';
 import { useJourney } from './state/useJourney';
 import { useSession } from './state/useSession';
@@ -63,6 +64,7 @@ const App: React.FC = () => {
 
   return (
     <IonApp>
+      <MuseumThemeController />
       <IonReactRouter>
         <IonRouterOutlet>
           <Switch>
