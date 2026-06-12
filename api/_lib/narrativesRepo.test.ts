@@ -20,10 +20,17 @@ const record: NarrativeRecord = {
 
 function fakeSupabase(row: unknown) {
   const maybeSingle = vi.fn(async () => ({ data: row, error: null }));
-  const chain: any = {
-    select: vi.fn(() => chain),
-    eq: vi.fn(() => chain),
-    insert: vi.fn(async () => ({ error: null })),
+  const insert = vi.fn(async () => ({ error: null }));
+  type Chain = {
+    select: () => Chain;
+    eq: () => Chain;
+    insert: typeof insert;
+    maybeSingle: typeof maybeSingle;
+  };
+  const chain: Chain = {
+    select: () => chain,
+    eq: () => chain,
+    insert,
     maybeSingle,
   };
   return { from: vi.fn(() => chain), chain };
