@@ -165,7 +165,54 @@ The client never holds a provider API key.
   soft with a clear in-app message.
 - No PII server-side in v1.
 
-## 6. Data model changes (`src/domain/types.ts`)
+## 6. Design language
+
+Reference: pliability-style mobile UI — near-black canvas, oversized
+editorial type, a single vivid accent, full-bleed imagery, pill CTAs,
+minimal chrome. MuseumLover adapts the formula with one twist: **the accent
+belongs to the museum, not the app.**
+
+### 6.1 Ink spine (fixed)
+
+A monochrome dark skeleton shared by every screen: near-black canvas,
+neutral grays, big display titles, pill CTAs, hairline dividers, three-tab
+bar (Route · Capture · Journey). The spine is never themed — consistency
+lives here.
+
+### 6.2 Museum themes (variable)
+
+The active museum sets a small token set via CSS variables: `--accent`,
+`--on-accent` (always the darkest shade of the accent family),
+`--surface-tint` (chips, mic button), canvas temperature (warm charcoal /
+cool black / stone-dark), and a display-font flavor for artifact titles
+(serif for fine arts & antiquity, sans for modern & contemporary).
+
+Curated examples: MMFA — vermilion on warm charcoal, serif titles.
+Contemporary art — electric violet on cool black, sans titles.
+Archaeology — verdigris on stone-dark, serif titles.
+
+Sourcing: hand-curated themes for the six listed museums. For a scanned,
+unlisted museum, the floor-plan parse response additionally returns a
+model-suggested accent; fallback is the default brand theme.
+
+### 6.3 Default brand theme
+
+**Gallery red** — vermilion accent on warm charcoal with serif display —
+used on museum-less surfaces (onboarding, Journey home, Profile) and as the
+brand identity. Purple deliberately lives on as the contemporary-museum
+theme rather than the brand color.
+
+### 6.4 Guardrails & implementation
+
+On-accent text always uses the darkest shade of its accent family; every
+curated accent is contrast-checked against its canvas. A small ThemeProvider
+reads the session's active museum and sets CSS variables — Tailwind 4 and
+Ionic both consume them natively. Tokens land in R1; screens adopt the
+language as they are touched in R2–R3; the R4 polish pass trues everything
+up. Post-v1 flourish (backlog): artifact-extracted "living accent" — e.g.,
+the audio progress bar takes the captured artwork's dominant color.
+
+## 7. Data model changes (`src/domain/types.ts`)
 
 - **`Visit`** — `id`, `museumId`, `startedAt`, `endedAt?`. Journey entries
   gain `visitId`; the memory book is per-visit. Existing entries migrate into
@@ -174,14 +221,17 @@ The client never holds a provider API key.
   session/visit.
 - **`ArtifactConversation`** — message list attached to a journey entry.
 - **`MemoryBook`** — `visitId`, generated summary, `shareId`.
+- **`MuseumTheme`** — `accent`, `onAccent`, `surfaceTint`, `canvas`,
+  `titleFont: 'serif' | 'sans'`; optional `theme` on `Museum`; scanned
+  museums may carry a suggested accent from the floor-plan parse.
 
-## 7. Roadmap
+## 8. Roadmap
 
 Phases 0–3a.5 remain done. The following replaces old Phases 3b–6:
 
 | Phase | Week | Ships | Accept when |
 |---|---|---|---|
-| **R1 — Real heart** | 1–2 | Vercel `/api` + Supabase + AI Gateway; `identify` + `tts` streaming end-to-end; mock client swapped out; streaming card + audio player; repo docs refreshed (§12) | Real artifact photo on device: first words < 5 s, audio < 10 s |
+| **R1 — Real heart** | 1–2 | Vercel `/api` + Supabase + AI Gateway; `identify` + `tts` streaming end-to-end; mock client swapped out; streaming card + audio player; design tokens (§6); repo docs refreshed (§13) | Real artifact photo on device: first words < 5 s, audio < 10 s |
 | **R2 — Conversation** | 3 | `converse`; push-to-talk + text input; spoken replies; chips become openers | 3-turn voice conversation about a captured artifact |
 | **R3 — Bookends** | 4 | `plan-visit` + route screen; `Visit` model + migration; memory book + share page | Full-day flow yields a share link that opens on another phone |
 | **R4 — Hardening** | 5 | Offline/error states, cost caps, Sentry, privacy manifest, icons/splash, `npx cap add ios`, Info.plist strings | App survives airplane-mode galleries gracefully |
@@ -193,7 +243,7 @@ Identification accuracy is validated in week 2 — the earliest possible moment
 **Fallback:** if week 4 slips, ship R1 + R2 only (Plan B) and move R3 behind
 TestFlight.
 
-## 8. Error handling principles
+## 9. Error handling principles
 
 - **The photo is sacred.** Saved to filesystem first, AI called second; a
   failed AI call never loses a capture (already guaranteed by 3a.5).
@@ -202,7 +252,7 @@ TestFlight.
   and a human-readable retry affordance on the card.
 - **Caps fail soft** with a clear message, never a dead-end.
 
-## 9. Testing
+## 10. Testing
 
 - **Vitest (unit):** cache keys, prompt builders, credit metering,
   visit/migration reducers; backend function logic (caching, quotas).
@@ -211,7 +261,7 @@ TestFlight.
 - **Cypress (existing setup):** web happy path.
 - **Field test (R5 gate):** MMFA, real device, cellular.
 
-## 10. Risks
+## 11. Risks
 
 | Risk | Mitigation |
 |---|---|
@@ -221,7 +271,7 @@ TestFlight.
 | 6-week clock | Plan B fallback (R1+R2 only) pre-agreed |
 | Ionic "web feel" on iOS | Existing design system + R4 polish pass; revisit stack only at v2 |
 
-## 11. Post-v1 backlog (in rough order)
+## 12. Post-v1 backlog (in rough order)
 
 1. Paywall (RevenueCat: `museumlover.monthly` $6.99, top-up packs) + Sign in
    with Apple + free-tier gate.
@@ -232,7 +282,7 @@ TestFlight.
    voice). This is when the Expo/SwiftUI rewrite question is re-asked, with
    revenue and learning in hand.
 
-## 12. Repo housekeeping (part of R1)
+## 13. Repo housekeeping (part of R1)
 
 - Rewrite `CLAUDE.md` — it still calls the repo an empty stub; it must
   document the real commands (`npm run dev`, `npm run build`,
