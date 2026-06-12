@@ -47,7 +47,7 @@ export class NarrationPlayer {
       if (this.state !== 'idle') this.setState('paused');
     });
     audio.addEventListener('ended', () => this.setState('idle'));
-    audio.addEventListener('error', () => this.setState('idle'));
+    audio.addEventListener('error', () => this.setState('idle')); // TODO R2: surface audio errors to the UI
 
     if ('mediaSession' in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({
@@ -60,14 +60,27 @@ export class NarrationPlayer {
       navigator.mediaSession.setActionHandler('stop', () => this.stop());
     }
 
-    await audio.play();
+    try {
+      await audio.play();
+    } catch (err) {
+      // Safari/iOS can reject play() (autoplay policy, decode, network)
+      // without a preceding 'error' event. The state subscription is the
+      // caller's source of truth, so reset instead of rethrowing.
+      if (this.state === 'loading') this.setState('idle');
+      console.warn('narration play failed', err);
+    }
   }
 
   toggle(): void {
     const audio = this.audio;
     if (!audio) return;
-    if (audio.paused) void audio.play();
-    else audio.pause();
+    if (audio.paused) {
+      audio.play().catch(() => {
+        if (this.state !== 'idle') this.setState('idle');
+      });
+    } else {
+      audio.pause();
+    }
   }
 
   stop(): void {
@@ -78,6 +91,11 @@ export class NarrationPlayer {
       audio.load?.();
     }
     this.audio = null;
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.setActionHandler('play', null);
+      navigator.mediaSession.setActionHandler('pause', null);
+      navigator.mediaSession.setActionHandler('stop', null);
+    }
     if (this.state !== 'idle') this.setState('idle');
   }
 }

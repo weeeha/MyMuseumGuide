@@ -64,4 +64,17 @@ describe('NarrationPlayer', () => {
     FakeAudio.instances[0].fire('ended');
     expect(states.at(-1)).toBe('idle');
   });
+
+  it('resets to idle when play() rejects (iOS autoplay policy)', async () => {
+    const player = new NarrationPlayer();
+    vi.spyOn(FakeAudio.prototype, 'play').mockRejectedValueOnce(
+      new Error('NotAllowedError'),
+    );
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const states: string[] = [];
+    player.subscribe((s) => states.push(s));
+    await player.play('/api/tts?nid=n1', { title: 'Sunrise' });
+    expect(states).toEqual(['idle', 'loading', 'idle']);
+    warnSpy.mockRestore();
+  });
 });
