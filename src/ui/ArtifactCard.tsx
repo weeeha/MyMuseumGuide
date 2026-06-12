@@ -21,6 +21,8 @@ interface Props {
   capturedAt?: string;
   museumName?: string;
   onFollowUp?: (followUpId: string) => void;
+  /** True while the story is still streaming in — shows a writing cursor. */
+  streaming?: boolean;
 }
 
 export function ArtifactCard({
@@ -29,6 +31,7 @@ export function ArtifactCard({
   capturedAt,
   museumName,
   onFollowUp,
+  streaming = false,
 }: Props) {
   const facts: { icon: string; value: string }[] = [];
   if (artifact.artist) facts.push({ icon: brushOutline, value: artifact.artist });
@@ -119,19 +122,30 @@ export function ArtifactCard({
           </p>
         </IonText>
 
-        {artifact.story.split('\n\n').map((para, i) => (
-          <IonText key={i} color="medium">
-            <p
-              style={{
-                fontSize: 'var(--ft-body)',
-                marginTop: 'var(--sp-sm)',
-                lineHeight: 1.55,
-              }}
-            >
-              {para}
+        {artifact.story &&
+          artifact.story.split('\n\n').map((para, i, all) => (
+            <IonText key={i} color="medium">
+              <p
+                style={{
+                  fontSize: 'var(--ft-body)',
+                  marginTop: 'var(--sp-sm)',
+                  lineHeight: 1.55,
+                }}
+              >
+                {para}
+                {streaming && i === all.length - 1 && (
+                  <span className="ml-streaming-cursor" aria-hidden="true" />
+                )}
+              </p>
+            </IonText>
+          ))}
+        {streaming && !artifact.story && (
+          <IonText color="medium">
+            <p style={{ fontSize: 'var(--ft-body)', marginTop: 'var(--sp-sm)' }}>
+              <span className="ml-streaming-cursor" aria-hidden="true" />
             </p>
           </IonText>
-        ))}
+        )}
 
         {artifact.tags.length > 0 && (
           <div
