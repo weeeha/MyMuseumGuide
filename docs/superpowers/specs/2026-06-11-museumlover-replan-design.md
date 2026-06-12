@@ -102,6 +102,34 @@ capture ~10 artifacts over a day (first words < 5 s, audio < 10 s) → hold a
 link opens on a friend's phone. The TestFlight build survives 30 minutes of
 real-museum use on cellular, crash-free.
 
+### 4.6 In-visit experience decisions
+
+Validated choices for the seams between moments:
+
+- **Resting face — visit dashboard.** During an active visit the app opens
+  to a dashboard: route progress on top, a large capture button below; the
+  camera is one tap away. The dashboard becomes the in-visit home when the
+  route ships (R3); until then the existing tab shell stands.
+- **Audio — smart auto-play.** With earbuds connected, narration auto-plays
+  when ready and keeps playing with the screen locked (proper background
+  audio session + Now Playing lock-screen controls, built in R1). On
+  speaker, narration waits for a tap — nothing blasts in a quiet gallery.
+- **Visit lifecycle — explicit with a nudge.** Picking or scanning the
+  museum starts the visit; "End visit" on the dashboard ends it. If a visit
+  is left open, a local notification that evening offers to wrap up and
+  build the memory book (`@capacitor/local-notifications`). The app never
+  ends a visit silently; no geolocation permission in v1.
+- **Guide initiative — spoken invitations.** Every narration ends with one
+  spoken teaser ("…and if you want to know why the critics hated this, just
+  ask"). Pure prompt design: zero cost, invites conversation, makes the
+  conversation feature discoverable. The guide never speaks unprompted
+  otherwise.
+- **Dead zones — quiet badge.** Captures always succeed instantly (photo
+  first, AI second). Offline captures sit in Journey as "waiting for
+  signal" entries; the dashboard shows "2 stories on their way"; arrivals
+  chime softly and never auto-play over an ongoing narration or
+  conversation.
+
 ## 5. Architecture
 
 ### 5.1 Client
@@ -224,6 +252,8 @@ the audio progress bar takes the captured artwork's dominant color.
 - **`MuseumTheme`** — `accent`, `onAccent`, `surfaceTint`, `canvas`,
   `titleFont: 'serif' | 'sans'`; optional `theme` on `Museum`; scanned
   museums may carry a suggested accent from the floor-plan parse.
+- **`JourneyEntry.status`** — `'pending' | 'ready'`, so offline captures
+  render as "waiting for signal" cards (quiet-badge behavior, §4.6).
 
 ## 8. Roadmap
 
@@ -231,9 +261,9 @@ Phases 0–3a.5 remain done. The following replaces old Phases 3b–6:
 
 | Phase | Week | Ships | Accept when |
 |---|---|---|---|
-| **R1 — Real heart** | 1–2 | Vercel `/api` + Supabase + AI Gateway; `identify` + `tts` streaming end-to-end; mock client swapped out; streaming card + audio player; design tokens (§6); repo docs refreshed (§13) | Real artifact photo on device: first words < 5 s, audio < 10 s |
+| **R1 — Real heart** | 1–2 | Vercel `/api` + Supabase + AI Gateway; `identify` + `tts` streaming end-to-end; mock client swapped out; streaming card + audio player (background + lock-screen); design tokens (§6); repo docs refreshed (§13) | Real artifact photo on device: first words < 5 s, audio < 10 s |
 | **R2 — Conversation** | 3 | `converse`; push-to-talk + text input; spoken replies; chips become openers | 3-turn voice conversation about a captured artifact |
-| **R3 — Bookends** | 4 | `plan-visit` + route screen; `Visit` model + migration; memory book + share page | Full-day flow yields a share link that opens on another phone |
+| **R3 — Bookends** | 4 | `plan-visit` + route screen; visit dashboard as in-visit home; `Visit` model + migration; end-visit nudge; memory book + share page | Full-day flow yields a share link that opens on another phone |
 | **R4 — Hardening** | 5 | Offline/error states, cost caps, Sentry, privacy manifest, icons/splash, `npx cap add ios`, Info.plist strings | App survives airplane-mode galleries gracefully |
 | **R5 — TestFlight** | 6 | Build + MMFA field test | 30 min real-museum use, crash-free, on cellular |
 
