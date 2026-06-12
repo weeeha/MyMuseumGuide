@@ -1,4 +1,4 @@
-import { createSseParser } from './sse';
+import { createSseParser, readSse } from './sse';
 
 describe('createSseParser', () => {
   it('parses a single complete event', () => {
@@ -29,5 +29,28 @@ describe('createSseParser', () => {
     p.push('data: plain\n\n');
     p.end();
     expect(events).toEqual([['message', 'plain']]);
+  });
+
+  it('tolerates CRLF line endings from normalizing proxies', () => {
+    const events: [string, string][] = [];
+    const p = createSseParser((e, d) => events.push([e, d]));
+    p.push('event: meta\r\ndata: {"x":1}\r\n\r\n');
+    p.end();
+    expect(events).toEqual([['meta', '{"x":1}']]);
+  });
+});
+
+describe('readSse', () => {
+  it('decodes a stream of Uint8Array chunks end-to-end', async () => {
+    const enc = new TextEncoder();
+    const body = new ReadableStream<Uint8Array>({
+      start(c) {
+        c.enqueue(enc.encode('event: meta\ndata: {"x":1}\n\n'));
+        c.close();
+      },
+    });
+    const events: [string, string][] = [];
+    await readSse(body, (e, d) => events.push([e, d]));
+    expect(events).toEqual([['meta', '{"x":1}']]);
   });
 });

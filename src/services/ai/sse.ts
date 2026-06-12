@@ -25,7 +25,7 @@ export function createSseParser(
 
   return {
     push(chunk) {
-      buffer += chunk;
+      buffer += chunk.replace(/\r\n/g, '\n');
       let idx = buffer.indexOf('\n\n');
       while (idx !== -1) {
         const block = buffer.slice(0, idx);
@@ -54,5 +54,6 @@ export async function readSse(
     if (done) break;
     parser.push(decoder.decode(value, { stream: true }));
   }
+  parser.push(decoder.decode());
   parser.end();
 }
