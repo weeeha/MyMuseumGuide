@@ -50,4 +50,12 @@ describe('finalizeArtifact', () => {
     expect(artifact.followUps[0].id).toBeTruthy();
     expect(artifact.followUps[0].prompt).toBe('Q');
   });
+
+  it('produces empty followUps and tags when extras never arrived', () => {
+    let p = start();
+    p = applyStreamEvent(p, { type: 'meta', meta: { title: 'X' } });
+    const artifact = finalizeArtifact(p, 'narr-2');
+    expect(artifact.followUps).toEqual([]);
+    expect(artifact.tags).toEqual([]);
+  });
 });

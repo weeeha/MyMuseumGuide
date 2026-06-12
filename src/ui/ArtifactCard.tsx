@@ -122,30 +122,32 @@ export function ArtifactCard({
           </p>
         </IonText>
 
-        {artifact.story &&
-          artifact.story.split('\n\n').map((para, i, all) => (
-            <IonText key={i} color="medium">
-              <p
-                style={{
-                  fontSize: 'var(--ft-body)',
-                  marginTop: 'var(--sp-sm)',
-                  lineHeight: 1.55,
-                }}
-              >
-                {para}
-                {streaming && i === all.length - 1 && (
-                  <span className="ml-streaming-cursor" aria-hidden="true" />
-                )}
+        <div aria-live={streaming ? 'polite' : 'off'}>
+          {artifact.story &&
+            artifact.story.split('\n\n').map((para, i, all) => (
+              <IonText key={i} color="medium">
+                <p
+                  style={{
+                    fontSize: 'var(--ft-body)',
+                    marginTop: 'var(--sp-sm)',
+                    lineHeight: 1.55,
+                  }}
+                >
+                  {para}
+                  {streaming && i === all.length - 1 && (
+                    <span className="ml-streaming-cursor" aria-hidden="true" />
+                  )}
+                </p>
+              </IonText>
+            ))}
+          {streaming && !artifact.story && (
+            <IonText color="medium">
+              <p style={{ fontSize: 'var(--ft-body)', marginTop: 'var(--sp-sm)' }}>
+                <span className="ml-streaming-cursor" aria-hidden="true" />
               </p>
             </IonText>
-          ))}
-        {streaming && !artifact.story && (
-          <IonText color="medium">
-            <p style={{ fontSize: 'var(--ft-body)', marginTop: 'var(--sp-sm)' }}>
-              <span className="ml-streaming-cursor" aria-hidden="true" />
-            </p>
-          </IonText>
-        )}
+          )}
+        </div>
 
         {artifact.tags.length > 0 && (
           <div

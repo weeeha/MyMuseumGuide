@@ -46,7 +46,7 @@ type Phase =
   | { kind: 'idle' }
   | { kind: 'saving'; photoDataUrl: string }
   | { kind: 'streaming'; stream: StreamingPhase }
-  | { kind: 'result'; photoDataUrl: string; artifact: ArtifactInfo };
+  | { kind: 'result'; photoDataUrl: string; artifact: ArtifactInfo; capturedAt: string };
 
 export function CapturePage() {
   const profile = useUserProfile((s) => s.profile);
@@ -60,7 +60,8 @@ export function CapturePage() {
   const streamRef = useRef<StreamingPhase | null>(null);
 
   const startCapture = async () => {
-    if (!profile) return;
+    if (!profile || phase.kind !== 'idle') return;
+    let photoPath: string | undefined;
     try {
       const photo = await takePhoto();
       if (!photo) return;
@@ -68,7 +69,7 @@ export function CapturePage() {
 
       // The photo is sacred: persist before any AI runs (spec §9).
       const entryId = nanoid();
-      const photoPath = journeyPhotoPath(entryId);
+      photoPath = journeyPhotoPath(entryId);
       await savePhoto(photoPath, photo.dataUrl);
 
       const stream = initialStreaming(photo.dataUrl, entryId);
@@ -140,7 +141,7 @@ export function CapturePage() {
         audioUrl: ttsUrlFor(finalDone.narrativeId),
       };
       await addToJourney(entry);
-      setPhase({ kind: 'result', photoDataUrl: photo.dataUrl, artifact });
+      setPhase({ kind: 'result', photoDataUrl: photo.dataUrl, artifact, capturedAt: entry.capturedAt });
       presentToast({
         message: 'Saved to your Journey',
         duration: 1800,
@@ -149,6 +150,9 @@ export function CapturePage() {
         position: 'top',
       });
     } catch (err) {
+      if (photoPath) {
+        void deletePhoto(photoPath).catch(() => {});
+      }
       const message =
         err instanceof Error ? err.message : 'Could not identify the artifact';
       presentToast({ message, duration: 2400, color: 'danger' });
@@ -272,7 +276,7 @@ export function CapturePage() {
               photoSrc={phase.photoDataUrl}
               artifact={phase.artifact}
               museumName={museum?.name}
-              capturedAt={new Date().toISOString()}
+              capturedAt={phase.capturedAt}
             />
             <div
               style={{ padding: 'var(--sp-base)', paddingBottom: 'var(--sp-2xl)' }}
