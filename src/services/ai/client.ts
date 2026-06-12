@@ -1,10 +1,13 @@
-import type { ArtifactInfo, CaptureRequest, Museum } from '../../domain/types';
-import { mockIdentifyArtifact, mockParseFloorPlan } from './mock';
+import type { CaptureRequest, Museum } from '../../domain/types';
+import { identifyArtifactStream, type IdentifyEvents } from './identify';
+import { mockIdentifyStream, mockParseFloorPlan } from './mock';
+
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_AI === 'true';
 
 /**
- * Thin client for the backend AI API. Phase 2 returns mocked data so the
- * full UI loop is buildable; Phase 3 swaps these implementations to
- * fetch('/api/v1/identify') etc. against the Cloudflare Workers backend.
+ * Client seam for the backend AI API (spec §5.1). identify streams against
+ * /api/identify (R1); floor-plan parsing stays mocked until R3's plan-visit.
+ * Set VITE_USE_MOCK_AI=true for backend-less UI development.
  */
 export const aiClient = {
   parseFloorPlan: async (
@@ -14,7 +17,6 @@ export const aiClient = {
     return mockParseFloorPlan(photoDataUrl, museum);
   },
 
-  identifyArtifact: async (req: CaptureRequest): Promise<ArtifactInfo> => {
-    return mockIdentifyArtifact(req);
-  },
+  identifyStream: (req: CaptureRequest, events: IdentifyEvents): Promise<void> =>
+    USE_MOCK ? mockIdentifyStream(req, events) : identifyArtifactStream(req, events),
 };
