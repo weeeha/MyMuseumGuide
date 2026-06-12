@@ -31,7 +31,7 @@ export async function stageOne(input: {
   });
   const raw = text
     .trim()
-    .replace(/^```(?:json)?/, '')
+    .replace(/^```(?:json)?/i, '')
     .replace(/```$/, '')
     .trim();
   let parsed: Record<string, unknown>;

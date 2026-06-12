@@ -68,7 +68,7 @@ export function createNarrativeSplitter(handlers: SplitterHandlers) {
       } else if (section === 1) {
         emitStory(buf);
       } else {
-        const raw = buf.trim().replace(/^```(?:json)?/, '').replace(/```$/, '').trim();
+        const raw = buf.trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();
         if (raw) {
           try {
             const parsed = JSON.parse(raw) as Partial<SplitResult>;

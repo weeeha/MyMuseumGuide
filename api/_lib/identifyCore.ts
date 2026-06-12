@@ -18,6 +18,9 @@ function validate(raw: unknown): IdentifyRequestBody {
   if (!b || typeof b.photoDataUrl !== 'string' || !b.photoDataUrl.startsWith('data:image/')) {
     throw new Error('photoDataUrl must be an image data URL');
   }
+  if (b.photoDataUrl.length > 2_000_000) {
+    throw new Error('Photo is too large — please retake or pick a smaller image');
+  }
   if (typeof b.language !== 'string' || typeof b.level !== 'string') {
     throw new Error('language and level are required');
   }
@@ -97,23 +100,29 @@ export function createIdentifyHandler(deps: IdentifyDeps) {
           send('extras', { tags: result.tags, followUps: result.followUps });
 
           const id = deps.newId();
-          await deps.repo.insert({
-            id,
-            museumId,
-            artifactKey: key,
-            lang: body.language,
-            level: body.level,
-            title: meta.title,
-            artist: meta.artist,
-            period: meta.period,
-            origin: meta.origin,
-            medium: meta.medium,
-            summary: result.summary,
-            story: result.story,
-            tags: result.tags,
-            followUps: result.followUps,
-          });
           send('done', { narrativeId: id, cached: false });
+          // Cache write is post-delivery bookkeeping: the user already has
+          // the story. A lost write just means one regeneration later.
+          void deps.repo
+            .insert({
+              id,
+              museumId,
+              artifactKey: key,
+              lang: body.language,
+              level: body.level,
+              title: meta.title,
+              artist: meta.artist,
+              period: meta.period,
+              origin: meta.origin,
+              medium: meta.medium,
+              summary: result.summary,
+              story: result.story,
+              tags: result.tags,
+              followUps: result.followUps,
+            })
+            .catch((err) => {
+              console.error('narratives insert failed (non-fatal)', err);
+            });
         } catch (err) {
           send('error', {
             message: err instanceof Error ? err.message : 'Identification failed',
