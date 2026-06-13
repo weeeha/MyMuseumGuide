@@ -45,6 +45,7 @@ export function CapturePage() {
 
   const startCapture = async () => {
     if (!profile) return;
+    if (phase.kind !== 'idle') return;
     try {
       const photo = await takePhoto();
       if (!photo) return;
