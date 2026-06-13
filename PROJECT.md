@@ -141,12 +141,13 @@ identification + narrative and **ElevenLabs Turbo v2.5** for TTS.
 - [x] Phase 2 — Museum picker + floor-plan capture
 - [x] Phase 3a — Capture loop scaffold (mock AI)
 - [x] Phase 3a.5 — Filesystem-backed Journey photos
-- [ ] Phase 3b — Capture loop with real AI
-- [ ] Phase 4 — Auth + paywall
-- [ ] Phase 5 — Hardening + TestFlight
-- [ ] Phase 6 — App Store submission
 
-> Backend stack: tentatively pivoting from Cloudflare Workers + Hono to **Vercel Functions** (this repo is already Vercel-linked via `vercel.json`). Decision finalized when Phase 3b is planned.
+> **Roadmap of record from here:** the whole-visit replan in
+> `docs/superpowers/specs/2026-06-11-museumlover-replan-design.md` —
+> R1 real streaming heart (in progress) → R2 conversation → R3 bookends →
+> R4 hardening → R5 TestFlight. Backend finalized as Vercel Functions +
+> Supabase; the tables above describe the original plan for historical
+> context.
 
 ### Pre-launch checklist (Apple)
 

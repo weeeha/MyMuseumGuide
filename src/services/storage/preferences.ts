@@ -22,4 +22,5 @@ export const KEYS = {
   profile: 'profile.v1',
   journeyIndex: 'journey.index.v1',
   session: 'session.v1',
+  deviceId: 'device.id.v1',
 } as const;

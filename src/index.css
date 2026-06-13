@@ -1,1 +1,17 @@
 @import "tailwindcss";
+
+/* R1 — streaming narrative cursor (ArtifactCard) */
+.ml-streaming-cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 2px;
+  vertical-align: text-bottom;
+  background: var(--ml-accent, var(--sf-accent));
+  animation: ml-blink 1s steps(2, start) infinite;
+}
+@keyframes ml-blink {
+  to {
+    visibility: hidden;
+  }
+}

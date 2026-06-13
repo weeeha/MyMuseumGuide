@@ -300,3 +300,15 @@
   --ion-item-border-color: var(--bd-subtle);
   --ion-border-color: var(--bd-default);
 }
+
+/* ============================================================
+   R1 — MuseumLover theme tokens (spec §6)
+   The active museum overrides these via MuseumThemeController;
+   the values below are the default gallery-red brand theme.
+   ============================================================ */
+:root {
+  --ml-accent: #d64541;
+  --ml-on-accent: #3b0d09;
+  --ml-surface-tint: #2a1d17;
+  --ml-title-font: Georgia, 'Times New Roman', serif;
+}
