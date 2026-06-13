@@ -64,6 +64,16 @@ export interface Museum {
   country: string;
   cover?: string;
   topics?: string[];
+  theme?: MuseumTheme;
+}
+
+/** Per-museum design tokens (spec §6.2). */
+export interface MuseumTheme {
+  accent: string;
+  onAccent: string;
+  surfaceTint: string;
+  canvas: 'warm' | 'cool' | 'stone';
+  titleFont: 'serif' | 'sans';
 }
 
 export interface FloorPlan {
@@ -85,6 +95,8 @@ export interface ArtifactInfo {
   story: string;
   tags: string[];
   followUps: FollowUp[];
+  /** Server-side narrative cache id — keys TTS and (R2) conversation. */
+  narrativeId?: string;
 }
 
 export interface FollowUp {
