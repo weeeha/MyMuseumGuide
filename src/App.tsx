@@ -5,6 +5,7 @@ import { IonApp, IonRouterOutlet, IonSpinner, setupIonicReact } from '@ionic/rea
 import { IonReactRouter } from '@ionic/react-router';
 import { AppShell } from './app/AppShell';
 import { MuseumThemeController } from './app/MuseumThemeController';
+import { seedDemoJourney } from './features/journey/demoSeed';
 import { OnboardingFlow } from './features/onboarding/OnboardingFlow';
 import { useJourney } from './state/useJourney';
 import { useSession } from './state/useSession';
@@ -38,12 +39,22 @@ const App: React.FC = () => {
   const profile = useUserProfile((s) => s.profile);
   const hydrateSession = useSession((s) => s.hydrate);
   const hydrateJourney = useJourney((s) => s.hydrate);
+  const journeyHydrated = useJourney((s) => s.hydrated);
 
   useEffect(() => {
     hydrate();
     hydrateSession();
     hydrateJourney();
   }, [hydrate, hydrateSession, hydrateJourney]);
+
+  // Mock-mode only: give the Journey something to open so the artifact detail
+  // view can be reviewed without a camera or a backend. Reads the store
+  // imperatively so seeding can't retrigger itself when entries change.
+  useEffect(() => {
+    if (!journeyHydrated) return;
+    const { entries, add } = useJourney.getState();
+    void seedDemoJourney(entries.length, add);
+  }, [journeyHydrated]);
 
   if (!hydrated) {
     return (

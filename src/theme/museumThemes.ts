@@ -61,10 +61,30 @@ const SERIF_STACK = 'Georgia, "Times New Roman", serif';
 const SANS_STACK =
   '-apple-system, "SF Pro Text", "Helvetica Neue", Helvetica, sans-serif';
 
+/**
+ * `#rrggbb` → `"r, g, b"`. Ionic's palette needs the triplet form for the
+ * `rgba(var(--ion-color-primary-rgb), .12)` tints it builds internally, and
+ * CSS cannot decompose a hex custom property.
+ */
+export function rgbTriplet(hex: string): string {
+  const clean = hex.replace('#', '');
+  const full =
+    clean.length === 3
+      ? clean
+          .split('')
+          .map((c) => c + c)
+          .join('')
+      : clean;
+  const n = parseInt(full, 16);
+  return `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`;
+}
+
 export function applyTheme(theme: MuseumTheme): void {
   const root = document.documentElement;
   root.style.setProperty('--ml-accent', theme.accent);
+  root.style.setProperty('--ml-accent-rgb', rgbTriplet(theme.accent));
   root.style.setProperty('--ml-on-accent', theme.onAccent);
+  root.style.setProperty('--ml-on-accent-rgb', rgbTriplet(theme.onAccent));
   root.style.setProperty('--ml-surface-tint', theme.surfaceTint);
   root.style.setProperty(
     '--ml-title-font',

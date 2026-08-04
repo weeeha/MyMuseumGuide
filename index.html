@@ -1,13 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<!-- The ink spine is fixed dark (spec §6.1), not a user preference. Setting
+     the class here rather than from React avoids a white flash before hydration. -->
+<html lang="en" class="ion-palette-dark">
   <head>
     <meta charset="utf-8" />
     <title>MuseumLover</title>
-    <meta name="theme-color" content="#D4734A" />
-    
+    <meta name="theme-color" content="#14100E" />
+
     <base href="/" />
-    
-    <meta name="color-scheme" content="light dark" />
+
+    <meta name="color-scheme" content="dark" />
     <meta
       name="viewport"
       content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
@@ -22,7 +24,7 @@
     <!-- add to homescreen for ios -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="MuseumLover" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   </head>
   <body>
     <div id="root"></div>

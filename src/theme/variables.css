@@ -180,29 +180,31 @@
    DARK MODE
    ============================================================ */
 .ion-palette-dark {
-  /* Backgrounds */
-  --bg-primary: #121212;
-  --bg-secondary: #1E1E1E;
-  --bg-tertiary: #2A2A2A;
-  --bg-elevated: #242424;
-  --bg-grouped: #1C1C1E;
+  /* Backgrounds — the canvas temperature comes from the active museum
+     (spec §6.2), so these follow --ml-canvas-* rather than fixed grays. */
+  --bg-primary: var(--ml-canvas);
+  --bg-secondary: var(--ml-canvas-raised);
+  --bg-tertiary: var(--ml-canvas-high);
+  --bg-elevated: var(--ml-canvas-raised);
+  --bg-grouped: var(--ml-canvas-sunken);
 
   /* Surfaces */
-  --sf-accent: #E0845A;
-  --sf-accent-sub: #2E1F17;
+  --sf-accent: var(--ml-accent);
+  --sf-accent-sub: var(--ml-surface-tint);
   --sf-success: #1B2E1C;
   --sf-warning: #2E2214;
   --sf-error: #2E1717;
   --sf-info: #162638;
-  --sf-selected: #2E1F17;
+  --sf-selected: var(--ml-surface-tint);
   --sf-disabled: #1A1A1A;
 
   /* Text */
   --tx-primary: #F0ECE7;
   --tx-secondary: #9E9893;
   --tx-tertiary: #5E5955;
-  --tx-on-accent: #FFFFFF;
-  --tx-link: #E0845A;
+  /* On-accent is always the darkest shade of the accent family (spec §6.4). */
+  --tx-on-accent: var(--ml-on-accent);
+  --tx-link: var(--ml-accent);
   --tx-success: #66BB6A;
   --tx-warning: #FFA726;
   --tx-error: #EF5350;
@@ -211,31 +213,36 @@
   --ic-primary: #F0ECE7;
   --ic-secondary: #7A7470;
   --ic-tertiary: #4A4540;
-  --ic-accent: #E0845A;
-  --ic-on-accent: #FFFFFF;
+  --ic-accent: var(--ml-accent);
+  --ic-on-accent: var(--ml-on-accent);
   --ic-success: #66BB6A;
   --ic-error: #EF5350;
 
-  /* Borders */
-  --bd-default: #333333;
-  --bd-subtle: #262626;
-  --bd-strong: #484848;
-  --bd-accent: #E0845A;
+  /* Borders — hairline dividers (spec §6.1), so these sit just above the
+     canvas rather than reading as boxes. */
+  --bd-default: rgba(240, 236, 231, 0.13);
+  --bd-subtle: rgba(240, 236, 231, 0.07);
+  --bd-strong: rgba(240, 236, 231, 0.24);
+  --bd-accent: var(--ml-accent);
   --bd-error: #EF5350;
-  --bd-disabled: #222222;
+  --bd-disabled: rgba(240, 236, 231, 0.05);
 
   /* ---- Ionic Variable Overrides (Dark) ---- */
   --ion-background-color: var(--bg-primary);
-  --ion-background-color-rgb: 18, 18, 18;
+  --ion-background-color-rgb: var(--ml-canvas-rgb);
   --ion-text-color: var(--tx-primary);
   --ion-text-color-rgb: 240, 236, 231;
 
-  --ion-color-primary: #E0845A;
-  --ion-color-primary-rgb: 224, 132, 90;
-  --ion-color-primary-contrast: #FFFFFF;
-  --ion-color-primary-contrast-rgb: 255, 255, 255;
-  --ion-color-primary-shade: #C5744F;
-  --ion-color-primary-tint: #E3906B;
+  /* The museum owns the accent (spec §6.2) — routing Ionic's primary through
+     --ml-accent is what makes theming reach buttons, toggles and spinners.
+     The -rgb triplet can't be derived from a hex var in CSS, so
+     applyTheme() sets --ml-accent-rgb alongside it. */
+  --ion-color-primary: var(--ml-accent);
+  --ion-color-primary-rgb: var(--ml-accent-rgb);
+  --ion-color-primary-contrast: var(--ml-on-accent);
+  --ion-color-primary-contrast-rgb: var(--ml-on-accent-rgb);
+  --ion-color-primary-shade: color-mix(in srgb, var(--ml-accent) 88%, #000);
+  --ion-color-primary-tint: color-mix(in srgb, var(--ml-accent) 88%, #fff);
 
   --ion-color-secondary: #9E9893;
   --ion-color-secondary-rgb: 158, 152, 147;
@@ -308,7 +315,108 @@
    ============================================================ */
 :root {
   --ml-accent: #d64541;
+  --ml-accent-rgb: 214, 69, 65;
   --ml-on-accent: #3b0d09;
+  --ml-on-accent-rgb: 59, 13, 9;
   --ml-surface-tint: #2a1d17;
   --ml-title-font: Georgia, 'Times New Roman', serif;
+}
+
+/* ---- Canvas temperature (spec §6.2) ----
+   The ink spine is always near-black; only its temperature shifts with the
+   museum. applyTheme() sets data-ml-canvas on <html>. Warm charcoal is the
+   default so museum-less surfaces carry the gallery-red brand identity. */
+:root,
+:root[data-ml-canvas='warm'] {
+  --ml-canvas: #14100e;
+  --ml-canvas-rgb: 20, 16, 14;
+  --ml-canvas-sunken: #0c0908;
+  --ml-canvas-raised: #1f1917;
+  --ml-canvas-high: #2a2320;
+}
+
+:root[data-ml-canvas='cool'] {
+  --ml-canvas: #0e0f13;
+  --ml-canvas-rgb: 14, 15, 19;
+  --ml-canvas-sunken: #08090c;
+  --ml-canvas-raised: #191b21;
+  --ml-canvas-high: #23262e;
+}
+
+:root[data-ml-canvas='stone'] {
+  --ml-canvas: #121210;
+  --ml-canvas-rgb: 18, 18, 16;
+  --ml-canvas-sunken: #0a0a09;
+  --ml-canvas-raised: #1d1d1a;
+  --ml-canvas-high: #272724;
+}
+
+/* Ionic's shipped dark palette hard-sets --ion-background-color on
+   `.ion-palette-dark.ios body`, which outranks the custom properties declared
+   on :root. Re-declaring at body scope is what actually lands the canvas —
+   without this the app renders pure #000 and the museum's temperature is lost. */
+.ion-palette-dark body,
+.ion-palette-dark.ios body,
+.ion-palette-dark.md body {
+  --ion-background-color: var(--ml-canvas);
+  --ion-background-color-rgb: var(--ml-canvas-rgb);
+  --ion-text-color: var(--tx-primary);
+  --ion-text-color-rgb: 240, 236, 231;
+  --ion-toolbar-background: var(--ml-canvas);
+  --ion-tab-bar-background: var(--ml-canvas);
+  --ion-item-background: transparent;
+  --ion-card-background: var(--ml-canvas-raised);
+  --ion-border-color: var(--bd-default);
+  --ion-item-border-color: var(--bd-subtle);
+  background: var(--ml-canvas);
+}
+
+/* ---- Ink spine typography (spec §6.1) ----
+   Oversized editorial display titles; the museum picks serif or sans. */
+ion-title[size='large'],
+.ml-display {
+  font-family: var(--ml-title-font);
+  letter-spacing: -0.02em;
+}
+
+/* Large titles and toolbars sit directly on the canvas — no seams. */
+ion-toolbar {
+  --background: var(--ml-canvas);
+  --border-color: var(--bd-subtle);
+  --color: var(--tx-primary);
+}
+
+ion-content {
+  --background: var(--ml-canvas);
+}
+
+/* Hairline dividers instead of Ionic's default heavy item borders. */
+ion-item {
+  --background: transparent;
+  --border-color: var(--bd-subtle);
+  --color: var(--tx-primary);
+}
+
+ion-list {
+  background: transparent;
+}
+
+/* Chips carry the museum's surface tint (spec §6.2). Without this they
+   render as undifferentiated running text. */
+ion-chip {
+  --background: var(--ml-surface-tint);
+  --color: var(--tx-secondary);
+  border: 1px solid var(--bd-subtle);
+  border-radius: var(--rd-full);
+  font-size: var(--ft-cap1);
+  letter-spacing: 0.01em;
+  min-height: 28px;
+}
+
+/* Pill CTAs (spec §6.1). */
+ion-button {
+  --border-radius: var(--rd-full);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-transform: none;
 }

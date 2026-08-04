@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:mock": "VITE_USE_MOCK_AI=true vite --host",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "test.e2e": "cypress run",
