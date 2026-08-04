@@ -11,7 +11,9 @@
     "test.unit": "vitest",
     "lint": "eslint",
     "dev:full": "vercel dev",
-    "typecheck:api": "tsc -p api/tsconfig.json --noEmit"
+    "typecheck:api": "tsc -p api/tsconfig.json --noEmit",
+    "preflight": "node --env-file-if-exists=.env scripts/preflight.mjs",
+    "measure": "node --env-file-if-exists=.env scripts/measure-latency.mjs"
   },
   "dependencies": {
     "@capacitor/app": "8.0.1",
