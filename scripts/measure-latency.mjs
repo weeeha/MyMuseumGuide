@@ -52,17 +52,27 @@ console.log(`photo   ${photoPath} (${(photoDataUrl.length / 1e6).toFixed(2)} MB 
 console.log(`target  ${base}\n`);
 
 const t0 = performance.now();
-const res = await fetch(`${base}/api/identify`, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    photoDataUrl,
-    museumId: flag('museum', undefined),
-    museumName: flag('museumName', undefined),
-    language: flag('lang', 'en'),
-    level: flag('level', 'curious'),
-  }),
-});
+let res;
+try {
+  res = await fetch(`${base}/api/identify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      photoDataUrl,
+      museumId: flag('museum', undefined),
+      museumName: flag('museumName', undefined),
+      language: flag('lang', 'en'),
+      level: flag('level', 'curious'),
+    }),
+  });
+} catch (err) {
+  console.error(
+    `Could not reach ${base} — ${err instanceof Error ? err.message : err}\n` +
+      'Is the backend running? `npm run dev:full` serves the api/ functions;\n' +
+      '`npm run dev` is Vite only and has no /api at all.',
+  );
+  process.exit(1);
+}
 
 if (!res.ok || !res.body) {
   console.error(`identify failed: HTTP ${res.status} — ${await res.text()}`);
@@ -105,16 +115,24 @@ if (streamError) {
 
 // Audio can only be requested once `done` has minted the narrative id.
 let audioFirstByte = null;
+let audioBytes = 0;
 let audioError = null;
 if (narrativeId) {
   const audioRes = await fetch(`${base}/api/tts?nid=${narrativeId}`);
   if (!audioRes.ok || !audioRes.body) {
     audioError = `HTTP ${audioRes.status}`;
   } else {
+    // Drain to completion rather than cancelling on the first chunk: the
+    // cache write lives in ttsCore's TransformStream flush(), so an early
+    // cancel would leave the MP3 uncached and make a second run measure
+    // another miss.
     const reader = audioRes.body.getReader();
-    await reader.read();
-    audioFirstByte = performance.now();
-    await reader.cancel();
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      audioFirstByte ??= performance.now();
+      audioBytes += value.length;
+    }
   }
 }
 
@@ -124,7 +142,7 @@ const audioStart = ms(t0, audioFirstByte);
 console.log('phase                        elapsed from capture');
 console.log('─────────────────────────────────────────────────');
 console.log(`meta (vision identify)       ${fmt(ms(t0, marks.meta))}`);
-console.log(`summary (first words)        ${fmt(firstWords)}`);
+console.log(`summary (full paragraph)     ${fmt(firstWords)}`);
 console.log(`extras (tags, follow-ups)    ${fmt(ms(t0, marks.extras))}`);
 console.log(`done (narrative persisted)   ${fmt(ms(t0, marks.done))}`);
 console.log(`audio first byte             ${fmt(audioStart)}${audioError ? ` (${audioError})` : ''}`);
@@ -132,6 +150,12 @@ console.log('');
 console.log(`cache          ${cached === null ? 'unknown' : cached ? 'HIT (narrative already generated)' : 'MISS (fresh generation)'}`);
 console.log(`narrative id   ${narrativeId ?? '—'}`);
 console.log(`story length   ${story.length} chars`);
+console.log(`audio size     ${audioBytes ? `${(audioBytes / 1024).toFixed(0)} KB` : '—'}`);
+console.log('');
+// The splitter emits `summary` only on the \n###\n delimiter, so this marks
+// the *complete* summary paragraph, not the literal first word on screen.
+console.log('note: "summary" fires when the whole paragraph is ready (narrativeSplitter');
+console.log('      holds it until the delimiter), which is what the card renders.');
 console.log('');
 
 const verdict = (label, actual, budget) => {
