@@ -2,6 +2,10 @@
 
 MuseumLover — an AI museum tour-guide mobile app. Point your camera at an artifact and it identifies the piece, generates a narrative, and reads it aloud.
 
+![Tour tab: museum picker](docs/screenshots/tour-museums.webp)
+
+Captured from a local dev run (`VITE_USE_MOCK_AI=true`, mobile viewport).
+
 ## What it does
 
 - Capture a photo of an artwork or exhibit (`src/features/capture`, `src/services/camera`)
@@ -9,6 +13,12 @@ MuseumLover — an AI museum tour-guide mobile app. Point your camera at an arti
 - Narrate the result with text-to-speech (`api/tts.ts`, `api/_lib/elevenlabs.ts`, `api/_lib/ttsCore.ts`), with audio caching (`api/_lib/audioCache.ts`)
 - Per-museum theming and a guided tour/journey flow (`src/theme/museumThemes.ts`, `src/features/tour`, `src/features/journey`)
 - Persists narratives in Supabase (`api/_lib/narrativesRepo.ts`, `supabase/migrations/0001_narratives.sql`)
+
+## Screenshots
+
+![Capture tab: take a photo of an artifact](docs/screenshots/capture-tab.webp)
+
+Capture tab, the entry point for identifying an artifact.
 
 ## Tech stack
 
@@ -28,6 +38,8 @@ npm install
 cp .env.example .env   # fill in the keys below
 ```
 
+For UI work without any keys, set `VITE_USE_MOCK_AI=true` and run `npm run dev`. Backend provisioning (Supabase, ElevenLabs, AI Gateway, Vercel) is walked through in [`docs/SETUP.md`](docs/SETUP.md).
+
 Environment variables (see `.env.example`):
 
 - Server: `AI_GATEWAY_API_KEY`, `ELEVENLABS_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`
@@ -44,6 +56,8 @@ npm run test.unit      # vitest
 npm run test.e2e       # cypress run
 npm run lint           # eslint
 npm run typecheck:api  # type-check the api/ functions
+npm run preflight      # check the four server credentials against the live services
+npm run measure        # latency check for identify + TTS (see docs/SETUP.md)
 ```
 
 ## Project structure
@@ -56,7 +70,9 @@ src/
   state/        Zustand stores (session, journey, user profile)
   theme/        per-museum themes
   domain/       shared types and models
-supabase/       SQL migrations
+supabase/       SQL migrations (narratives table, audio bucket)
+scripts/        preflight.mjs and measure-latency.mjs
+docs/           SETUP.md (backend provisioning)
 ```
 
-Mobile shell is configured via Capacitor (`capacitor.config.ts`, app id `com.museumlover.app`); the web app deploys to Vercel (`vercel.json`).
+Mobile shell is configured via Capacitor (`capacitor.config.ts`, app id `com.museumlover.app`); the web app deploys to Vercel (`vercel.json`). CI (`.github/workflows/ci.yml`) runs typecheck, lint and unit tests on every push.
