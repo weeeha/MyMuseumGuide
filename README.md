@@ -1,5 +1,13 @@
 # MyMuseumGuide
 
+**Problem.** A visitor standing at an artifact wants its story in their own language and at their own level of curiosity, and a museum explanation is written once for everyone.
+
+**Idea.** Point the phone at the artifact. The app identifies it, writes a short narrative personalized to the visitor's language, depth level and interests, and reads it aloud so the phone can go back in the pocket.
+
+**Built.** An Ionic, Capacitor and React app with Vercel serverless functions for identify and text-to-speech, Claude through the Vercel AI Gateway, ElevenLabs voices and Supabase for stored narratives. 63 commits on 15 days, Mar 12 to Oct 25, 2026.
+
+**Decision.** Keep the Ionic and Capacitor scaffold and deepen the capture loop, instead of rewriting in Expo/React Native or SwiftUI. The first version (snap, narrate, converse) needs no realtime video, and a rewrite would spend one to two weeks of the sprint reaching parity.
+
 MuseumLover — an AI museum tour-guide mobile app. Point your camera at an artifact and it identifies the piece, generates a narrative, and reads it aloud.
 
 ![Tour tab: museum picker](docs/screenshots/tour-museums.webp)
